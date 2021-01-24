@@ -10,13 +10,23 @@ import (
 	"strconv"
 )
 
-var charms []Charm
+var charms Storage
+
+func init() {
+	charms = &IMCharms{
+		storage: make([]Charm, 0, 1),
+		lastId:  0,
+	}
+}
 
 // READ
-func GetCharms(w http.ResponseWriter, _ *http.Request) {
+func GetCharms(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: getCharms")
 
-	json.NewEncoder(w).Encode(charms)
+	charmSlice := charms.getAll()
+	if charmSlice != nil {
+		json.NewEncoder(w).Encode(charmSlice)
+	}
 }
 
 func GetCharm(w http.ResponseWriter, r *http.Request) {
@@ -25,12 +35,8 @@ func GetCharm(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		log.Println(err)
-	} else {
-		for _, c := range charms {
-			if c.Id == id {
-				json.NewEncoder(w).Encode(c)
-			}
-		}
+	} else if c := charms.get(id); c != nil {
+		json.NewEncoder(w).Encode(c)
 	}
 }
 
@@ -42,8 +48,7 @@ func CreateCharm(w http.ResponseWriter, r *http.Request) {
 	var c Charm
 	json.Unmarshal(reqBody, &c)
 
-	charms = append(charms, c)
-	json.NewEncoder(w).Encode(c)
+	json.NewEncoder(w).Encode(charms.add(c))
 }
 
 // DELETE
@@ -54,11 +59,7 @@ func DeleteCharm(_ http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	} else {
-		for idx, c := range charms {
-			if c.Id == id {
-				charms = append(charms[:idx], charms[idx+1:]...)
-			}
-		}
+		charms.delete(id)
 	}
 }
 
@@ -74,11 +75,6 @@ func UpdateCharm(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	} else {
-		for idx, c := range charms {
-			if c.Id == id {
-				charms[idx] = u
-				json.NewEncoder(w).Encode(charms[idx])
-			}
-		}
+		json.NewEncoder(w).Encode(charms.update(id, u))
 	}
 }

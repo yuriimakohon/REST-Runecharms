@@ -8,18 +8,18 @@ import (
 )
 
 func handleRequest() {
-	gRouter := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter().StrictSlash(true)
 	// Read
-	gRouter.HandleFunc("/charm", charm.GetCharms).Methods("GET")
-	gRouter.HandleFunc("/charm/{id}", charm.GetCharm).Methods("GET")
+	router.HandleFunc("/charm", charm.GetCharms).Methods("GET")
+	router.HandleFunc("/charm/{id}", charm.GetCharm).Methods("GET")
 	// Create
-	gRouter.HandleFunc("/charm", charm.CreateCharm).Methods("POST")
+	router.HandleFunc("/charm", charm.CreateCharm).Methods("POST")
 	// Delete
-	gRouter.HandleFunc("/charm/{id}", charm.DeleteCharm).Methods("DELETE")
+	router.HandleFunc("/charm/{id}", charm.DeleteCharm).Methods("DELETE")
 	// Update
-	gRouter.HandleFunc("/charm/{id}", charm.UpdateCharm).Methods("PUT")
+	router.HandleFunc("/charm/{id}", charm.UpdateCharm).Methods("PUT")
 
-	log.Fatal(http.ListenAndServe(":8080", gRouter))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 func main() {

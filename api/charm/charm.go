@@ -6,3 +6,12 @@ type Charm struct {
 	God      string `json:"god"`
 	Strength int    `json:"strength"`
 }
+
+// Charm type storage for CRUD
+type Storage interface {
+	add(charm Charm) *Charm
+	get(id int) *Charm
+	getAll() []Charm
+	delete(id int)
+	update(id int, charm Charm) *Charm
+}
