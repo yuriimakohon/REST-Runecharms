@@ -74,7 +74,7 @@ func UpdateCharm(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		log.Println(err)
-	} else {
-		json.NewEncoder(w).Encode(charms.update(id, u))
+	} else if c := charms.update(id, u); c != nil {
+		json.NewEncoder(w).Encode(c)
 	}
 }
