@@ -19,12 +19,28 @@ func init() {
 	}
 }
 
+// CREATE
+func CreateCharm(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: createCharm")
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var c Charm
+	json.Unmarshal(reqBody, &c)
+
+	if c, err := charms.add(c); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	} else {
+		json.NewEncoder(w).Encode(c)
+	}
+}
+
 // READ
 func GetCharms(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: getCharms")
 
-	charmSlice := charms.getAll()
-	if charmSlice != nil {
+	if charmSlice, err := charms.getAll(); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+	} else if charmSlice != nil {
 		json.NewEncoder(w).Encode(charmSlice)
 	}
 }
@@ -34,32 +50,14 @@ func GetCharm(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
-		log.Println(err)
-	} else if c := charms.get(id); c != nil {
-		json.NewEncoder(w).Encode(c)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-}
 
-// CREATE
-func CreateCharm(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: createCharm")
-
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	var c Charm
-	json.Unmarshal(reqBody, &c)
-
-	json.NewEncoder(w).Encode(charms.add(c))
-}
-
-// DELETE
-func DeleteCharm(_ http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: deleteCharm")
-
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
-	if err != nil {
-		log.Println(err)
+	if c, err := charms.get(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 	} else {
-		charms.delete(id)
+		json.NewEncoder(w).Encode(c)
 	}
 }
 
@@ -74,7 +72,26 @@ func UpdateCharm(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		log.Println(err)
-	} else if c := charms.update(id, u); c != nil {
+	}
+
+	if c, err := charms.update(id, u); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+	} else {
 		json.NewEncoder(w).Encode(c)
+	}
+}
+
+// DELETE
+func DeleteCharm(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: deleteCharm")
+
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if _, err = charms.delete(id); err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 }
