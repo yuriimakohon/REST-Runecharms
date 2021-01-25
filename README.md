@@ -88,9 +88,12 @@ Returns one entity with `id`
 ---
 
 ### DELETE
+
 **DELETE**  `/charm/{id}`  
 Delete and returns deleted entity from storage
+
 ---
+
 ### UPDATE
 **PUT** `/charm/{id}`
 Updates entity with `id` according to content in _**json**_(each field is optional):
