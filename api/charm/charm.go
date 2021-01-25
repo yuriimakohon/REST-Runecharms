@@ -3,10 +3,10 @@ package charm
 import "errors"
 
 type Charm struct {
-	Id       int    `json:"id"`
-	Rune     string `json:"rune"`
-	God      string `json:"god"`
-	Strength int    `json:"strength"`
+	Id    int    `json:"id"`
+	Rune  string `json:"rune"`
+	God   string `json:"god"`
+	Power int    `json:"power"`
 }
 
 var (
