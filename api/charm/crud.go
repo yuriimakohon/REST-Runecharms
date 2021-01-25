@@ -38,10 +38,23 @@ func CreateCharm(w http.ResponseWriter, r *http.Request) {
 func GetCharms(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: getCharms")
 
+	// Filters
+	fRune := r.URL.Query().Get("rune")
+	fGod := r.URL.Query().Get("god")
+	fPower := r.URL.Query().Get("power")
+
 	if charmSlice, err := charms.getAll(); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	} else if charmSlice != nil {
-		json.NewEncoder(w).Encode(charmSlice)
+		filteredSlice := make([]Charm, 0, 1)
+		for _, c := range charmSlice {
+			if (fRune == "" || c.Rune == fRune) &&
+				(fGod == "" || c.God == fGod) &&
+				(fPower == "" || fmt.Sprint(c.Power) == fPower) {
+				filteredSlice = append(filteredSlice, c)
+			}
+		}
+		json.NewEncoder(w).Encode(filteredSlice)
 	}
 }
 
