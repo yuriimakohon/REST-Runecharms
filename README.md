@@ -26,7 +26,9 @@ Returns created entity with generated id in _**json**_:
     "power" : 270
 }
 ```
+
 ---
+
 ### READ
 **GET** `/charm`  
 Returns all charms in _**json**_:
@@ -79,9 +81,12 @@ Returns all charms in _**json**_:
   }
 ]
 ```
+
 **GET** `/charm/{id}`  
 Returns one entity with `id`
+
 ---
+
 ### DELETE
 **DELETE**  `/charm/{id}`  
 Delete and returns deleted entity from storage
