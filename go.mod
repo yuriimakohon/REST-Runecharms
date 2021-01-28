@@ -1,4 +1,4 @@
-module runecharm
+module github.com/yuriimakohon/RunecharmsCRUD
 
 go 1.15
 
