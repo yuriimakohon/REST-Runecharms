@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package api;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "pkg/api";
+
+message Charm {
+  int32 id = 1;
+  string rune = 2;
+  string god = 3;
+  int32  power = 4;
+}
+
+service CharmCRUDService {
+  rpc Add(EntityRequest) returns (EntityResponse) {}
+  rpc GetAll(google.protobuf.Empty) returns (EntityResponse) {}
+  rpc Get(EntityRequest) returns (EntityResponse) {}
+  rpc Delete(EntityRequest) returns (EntityResponse) {}
+  rpc Update(EntityRequest) returns (EntityResponse) {}
+}
+
+message EntityResponse {
+  repeated Charm entities = 1;
+}
+
+message EntityRequest {
+  int32 id = 1;
+  Charm entity = 2;
+}

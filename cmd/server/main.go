@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/yuriimakohon/RunecharmsCRUD/api/inmem"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/rest"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/grpc"
 	"log"
 	"net/http"
 )
 
 func handleRequest() {
 	router := mux.NewRouter().StrictSlash(true)
-	s := rest.NewHttpServer(inmem.New())
+	s := rest.NewHttpServer(grpc.New())
 	// Read
 	router.HandleFunc("/charm", s.GetAllCharms).Methods(http.MethodGet)
 	router.HandleFunc("/charm/{id}", s.GetCharm).Methods(http.MethodGet)
