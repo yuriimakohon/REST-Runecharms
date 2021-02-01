@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/ptypes/empty"
 	m "github.com/yuriimakohon/RunecharmsCRUD/api/models"
 	"github.com/yuriimakohon/RunecharmsCRUD/pkg/api"
 	"google.golang.org/grpc"
@@ -49,11 +50,29 @@ func (s *Storage) Add(c m.Charm) (m.Charm, error) {
 }
 
 func (s *Storage) GetAll() ([]m.Charm, error) {
-	fmt.Println("Implement GetAll")
-	return []m.Charm{}, nil
-	//cp := make([]m.Charm, len(s.Charms))
-	//copy(cp, s.Charms)
-	//return cp, nil
+	resp, err := s.cli.GetAll(context.Background(), &empty.Empty{})
+	if err != nil {
+		return []m.Charm{}, err
+	}
+
+	lenResp, err := s.cli.Len(context.Background(), &empty.Empty{})
+	if err != nil {
+		return []m.Charm{}, err
+	}
+
+	slice := make([]m.Charm, 0, lenResp.Value)
+	for _, c := range resp.Entities {
+		slice = append(
+			slice,
+			m.Charm{
+				Id:    c.Id,
+				Rune:  c.Rune,
+				God:   c.God,
+				Power: c.Power,
+			},
+		)
+	}
+	return slice, nil
 }
 
 func (s *Storage) Get(id int32) (m.Charm, error) {
@@ -90,4 +109,12 @@ func (s *Storage) Update(id int32, u m.Charm) (m.Charm, error) {
 	//	}
 	//}
 	//return m.Charm{}, storage.ErrNotFound
+}
+
+func (s *Storage) Len() (int, error) {
+	resp, err := s.cli.Len(context.Background(), &empty.Empty{})
+	if err != nil {
+		return 0, err
+	}
+	return int(resp.Value), nil
 }

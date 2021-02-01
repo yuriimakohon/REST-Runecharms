@@ -16,4 +16,5 @@ type Storage interface {
 	GetAll() ([]m.Charm, error)
 	Delete(id int32) (m.Charm, error)
 	Update(id int32, charm m.Charm) (m.Charm, error)
+	Len() (int, error)
 }

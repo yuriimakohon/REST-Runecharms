@@ -57,3 +57,7 @@ func (s *Storage) Update(id int32, u m.Charm) (m.Charm, error) {
 	}
 	return m.Charm{}, storage.ErrNotFound
 }
+
+func (s *Storage) Len() (int, error) {
+	return len(s.Charms), nil
+}

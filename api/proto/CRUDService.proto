@@ -19,10 +19,15 @@ service CharmCRUDService {
   rpc Get(EntityRequest) returns (EntityResponse) {}
   rpc Delete(EntityRequest) returns (EntityResponse) {}
   rpc Update(EntityRequest) returns (EntityResponse) {}
+  rpc Len(google.protobuf.Empty) returns (LenResponse) {}
 }
 
 message EntityResponse {
   repeated Charm entities = 1;
+}
+
+message LenResponse {
+  int32 value = 1;
 }
 
 message EntityRequest {

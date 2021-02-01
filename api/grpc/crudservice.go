@@ -16,7 +16,7 @@ func New(storage storage.Storage) *charmCRUDService {
 	return &charmCRUDService{storage: storage}
 }
 
-func (c charmCRUDService) Add(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
+func (s charmCRUDService) Add(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
 	mCharm := m.Charm{
 		Rune:  request.Entity.Rune,
 		God:   request.Entity.God,
@@ -27,7 +27,7 @@ func (c charmCRUDService) Add(ctx context.Context, request *api.EntityRequest) (
 		Entities: make([]*api.Charm, 0, 1),
 	}
 
-	mCharm, err := c.storage.Add(mCharm)
+	mCharm, err := s.storage.Add(mCharm)
 	if err != nil {
 		return resp, err
 	}
@@ -43,18 +43,52 @@ func (c charmCRUDService) Add(ctx context.Context, request *api.EntityRequest) (
 	return resp, nil
 }
 
-func (c charmCRUDService) GetAll(ctx context.Context, empty *empty.Empty) (*api.EntityResponse, error) {
+func (s charmCRUDService) GetAll(ctx context.Context, empty *empty.Empty) (*api.EntityResponse, error) {
+	length, err := s.storage.Len()
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &api.EntityResponse{
+		Entities: make([]*api.Charm, 0, length),
+	}
+
+	charms, err := s.storage.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, c := range charms {
+		resp.Entities = append(
+			resp.Entities,
+			&api.Charm{
+				Id:    c.Id,
+				Rune:  c.Rune,
+				God:   c.God,
+				Power: c.Power,
+			},
+		)
+	}
+	return resp, nil
+}
+
+func (s charmCRUDService) Get(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
 	panic("implement me")
 }
 
-func (c charmCRUDService) Get(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
+func (s charmCRUDService) Delete(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
 	panic("implement me")
 }
 
-func (c charmCRUDService) Delete(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
+func (s charmCRUDService) Update(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
 	panic("implement me")
 }
 
-func (c charmCRUDService) Update(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
-	panic("implement me")
+func (s charmCRUDService) Len(ctx context.Context, empty *empty.Empty) (*api.LenResponse, error) {
+	length, err := s.storage.Len()
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.LenResponse{Value: int32(length)}, nil
 }

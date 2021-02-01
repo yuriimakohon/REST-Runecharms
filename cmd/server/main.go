@@ -20,6 +20,8 @@ func handleRequest() {
 	router.HandleFunc("/charm/{id}", s.DeleteCharm).Methods(http.MethodDelete)
 	// Update
 	router.HandleFunc("/charm/{id}", s.UpdateCharm).Methods(http.MethodPut)
+	// Len
+	router.HandleFunc("/len", s.Len).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -159,3 +159,14 @@ func (s *HttpServer) DeleteCharm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 }
+
+func (s *HttpServer) Len(w http.ResponseWriter, r *http.Request) {
+	length, err := s.storage.Len()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	if err = json.NewEncoder(w).Encode(length); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
