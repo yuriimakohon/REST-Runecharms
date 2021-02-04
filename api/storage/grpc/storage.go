@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	m "github.com/yuriimakohon/RunecharmsCRUD/api/models"
 	"github.com/yuriimakohon/RunecharmsCRUD/pkg/api"
@@ -26,13 +25,7 @@ func New() *Storage {
 }
 
 func (s *Storage) Add(c m.Charm) (m.Charm, error) {
-	req := &api.EntityRequest{
-		Entity: &api.Charm{
-			Rune:  c.Rune,
-			God:   c.God,
-			Power: c.Power,
-		},
-	}
+	req := &api.EntityRequest{Entity: CharmModelToGrpc(c)}
 
 	resp, err := s.cli.Add(context.Background(), req)
 	if err != nil {
@@ -41,12 +34,7 @@ func (s *Storage) Add(c m.Charm) (m.Charm, error) {
 
 	entity := resp.GetEntities()[0]
 
-	return m.Charm{
-		Id:    entity.GetId(),
-		Rune:  entity.GetRune(),
-		God:   entity.GetGod(),
-		Power: entity.GetPower(),
-	}, nil
+	return CharmGrpcToModel(entity), nil
 }
 
 func (s *Storage) GetAll() ([]m.Charm, error) {
@@ -62,53 +50,36 @@ func (s *Storage) GetAll() ([]m.Charm, error) {
 
 	slice := make([]m.Charm, 0, lenResp.Value)
 	for _, c := range resp.Entities {
-		slice = append(
-			slice,
-			m.Charm{
-				Id:    c.Id,
-				Rune:  c.Rune,
-				God:   c.God,
-				Power: c.Power,
-			},
-		)
+		slice = append(slice, CharmGrpcToModel(c))
 	}
 	return slice, nil
 }
 
 func (s *Storage) Get(id int32) (m.Charm, error) {
-	fmt.Println("Implement Get")
-	return m.Charm{}, nil
-	//for _, c := range s.Charms {
-	//	if c.Id == id {
-	//		return c, nil
-	//	}
-	//}
-	//return m.Charm{}, storage.ErrNotFound
+	resp, err := s.cli.Get(context.Background(), &api.EntityRequest{Id: id})
+	if err != nil {
+		return m.Charm{}, err
+	}
+
+	return CharmGrpcToModel(resp.Entities[0]), nil
 }
 
 func (s *Storage) Delete(id int32) (m.Charm, error) {
-	fmt.Println("Implement Delete")
-	return m.Charm{}, nil
-	//for idx, c := range s.Charms {
-	//	if c.Id == id {
-	//		s.Charms = append(s.Charms[:idx], s.Charms[idx+1:]...)
-	//		return c, nil
-	//	}
-	//}
-	//return m.Charm{}, storage.ErrNotFound
+	resp, err := s.cli.Delete(context.Background(), &api.EntityRequest{Id: id})
+	if err != nil {
+		return m.Charm{}, err
+	}
+
+	return CharmGrpcToModel(resp.Entities[0]), nil
 }
 
 func (s *Storage) Update(id int32, u m.Charm) (m.Charm, error) {
-	fmt.Println("Implement Update")
-	return m.Charm{}, nil
-	//for idx, c := range s.Charms {
-	//	if c.Id == id {
-	//		u.Id = id
-	//		s.Charms[idx] = u
-	//		return s.Charms[idx], nil
-	//	}
-	//}
-	//return m.Charm{}, storage.ErrNotFound
+	resp, err := s.cli.Update(context.Background(), &api.EntityRequest{Id: id, Entity: CharmModelToGrpc(u)})
+	if err != nil {
+		return m.Charm{}, err
+	}
+
+	return CharmGrpcToModel(resp.Entities[0]), nil
 }
 
 func (s *Storage) Len() (int, error) {

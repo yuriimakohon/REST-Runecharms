@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
-	m "github.com/yuriimakohon/RunecharmsCRUD/api/models"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/grpc"
 	"github.com/yuriimakohon/RunecharmsCRUD/pkg/api"
 )
 
@@ -17,11 +17,7 @@ func New(storage storage.Storage) *charmCRUDService {
 }
 
 func (s charmCRUDService) Add(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
-	mCharm := m.Charm{
-		Rune:  request.Entity.Rune,
-		God:   request.Entity.God,
-		Power: request.Entity.Power,
-	}
+	mCharm := grpc.CharmGrpcToModel(request.Entity)
 
 	resp := &api.EntityResponse{
 		Entities: make([]*api.Charm, 0, 1),
@@ -32,12 +28,7 @@ func (s charmCRUDService) Add(ctx context.Context, request *api.EntityRequest) (
 		return resp, err
 	}
 
-	apiCharm := &api.Charm{
-		Id:    mCharm.Id,
-		Rune:  mCharm.Rune,
-		God:   mCharm.God,
-		Power: mCharm.Power,
-	}
+	apiCharm := grpc.CharmModelToGrpc(mCharm)
 
 	resp.Entities = append(resp.Entities, apiCharm)
 	return resp, nil
@@ -59,29 +50,45 @@ func (s charmCRUDService) GetAll(ctx context.Context, empty *empty.Empty) (*api.
 	}
 
 	for _, c := range charms {
-		resp.Entities = append(
-			resp.Entities,
-			&api.Charm{
-				Id:    c.Id,
-				Rune:  c.Rune,
-				God:   c.God,
-				Power: c.Power,
-			},
-		)
+		resp.Entities = append(resp.Entities, grpc.CharmModelToGrpc(c))
 	}
 	return resp, nil
 }
 
 func (s charmCRUDService) Get(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
-	panic("implement me")
+	mCharm, err := s.storage.Get(request.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	apiCharm := grpc.CharmModelToGrpc(mCharm)
+
+	resp := &api.EntityResponse{Entities: append(make([]*api.Charm, 0, 1), apiCharm)}
+	return resp, nil
 }
 
 func (s charmCRUDService) Delete(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
-	panic("implement me")
+	mCharm, err := s.storage.Delete(request.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	apiCharm := grpc.CharmModelToGrpc(mCharm)
+
+	resp := &api.EntityResponse{Entities: append(make([]*api.Charm, 0, 1), apiCharm)}
+	return resp, nil
 }
 
 func (s charmCRUDService) Update(ctx context.Context, request *api.EntityRequest) (*api.EntityResponse, error) {
-	panic("implement me")
+	mCharm, err := s.storage.Update(request.Id, grpc.CharmGrpcToModel(request.Entity))
+	if err != nil {
+		return nil, err
+	}
+
+	apiCharm := grpc.CharmModelToGrpc(mCharm)
+
+	resp := &api.EntityResponse{Entities: append(make([]*api.Charm, 0, 1), apiCharm)}
+	return resp, nil
 }
 
 func (s charmCRUDService) Len(ctx context.Context, empty *empty.Empty) (*api.LenResponse, error) {
