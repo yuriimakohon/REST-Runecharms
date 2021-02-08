@@ -3,14 +3,15 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/rest"
-	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/grpc"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/mongodb"
 	"log"
 	"net/http"
 )
 
 func handleRequest() {
 	router := mux.NewRouter().StrictSlash(true)
-	s := rest.NewHttpServer(grpc.New())
+	s := rest.NewHttpServer(mongodb.New())
+
 	// Read
 	router.HandleFunc("/charm", s.GetAllCharms).Methods(http.MethodGet)
 	router.HandleFunc("/charm/{id}", s.GetCharm).Methods(http.MethodGet)
