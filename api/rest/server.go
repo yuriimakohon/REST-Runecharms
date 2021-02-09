@@ -8,11 +8,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 // Http REST api server that work with internal crud.Storage
 type HttpServer struct {
 	storage storage2.Storage
+	mutex   sync.Mutex
 }
 
 // Returns new HttpServer with crud.Storage implementation inside
@@ -26,6 +28,8 @@ Create new models.Charm in internal crud.Storage
 Encode created entity to response
 */
 func (s *HttpServer) CreateCharm(w http.ResponseWriter, r *http.Request) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	// get request body for further unmarshal
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -56,6 +60,8 @@ func (s *HttpServer) CreateCharm(w http.ResponseWriter, r *http.Request) {
 Encode all entities from internal crud.Storage to response
 */
 func (s *HttpServer) GetAllCharms(w http.ResponseWriter, r *http.Request) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	// get slice of all Charms from internal storage
 	slice, err := s.storage.GetAll()
 	if err != nil {
@@ -73,6 +79,8 @@ func (s *HttpServer) GetAllCharms(w http.ResponseWriter, r *http.Request) {
 Encode entity with certain id from internal crud.Storage to response
 */
 func (s *HttpServer) GetCharm(w http.ResponseWriter, r *http.Request) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	// get id from request using mux.Vars()
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -104,6 +112,8 @@ Update certain entity with id from internal crud.Storage according to content in
 Encode updated entity to response
 */
 func (s *HttpServer) UpdateCharm(w http.ResponseWriter, r *http.Request) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	// get request body for further unmarshal
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -147,6 +157,8 @@ func (s *HttpServer) UpdateCharm(w http.ResponseWriter, r *http.Request) {
 Delete certain entity with id from internal crud.Storage
 */
 func (s *HttpServer) DeleteCharm(w http.ResponseWriter, r *http.Request) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	// get id from request using mux.Vars()
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
