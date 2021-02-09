@@ -8,10 +8,6 @@ import (
 
 var s = New()
 
-func TestStartClean(t *testing.T) {
-	s.coll.Drop(s.ctx)
-}
-
 func TestStorage_Add(t *testing.T) {
 	c1 := models.Charm{
 		Id:    0,
@@ -184,4 +180,5 @@ func TestStorage_Len(t *testing.T) {
 
 func TestFinishClean(t *testing.T) {
 	s.coll.Drop(s.ctx)
+	s.lastIdColl.Drop(s.ctx)
 }
