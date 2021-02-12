@@ -167,8 +167,14 @@ func (s *HttpServer) DeleteCharm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// delete entity from internal storage by id
-	if _, err = s.storage.Delete(int32(id)); err != nil {
+	d, err := s.storage.Delete(int32(id))
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	if err = json.NewEncoder(w).Encode(d); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
