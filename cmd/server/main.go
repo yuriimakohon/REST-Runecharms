@@ -3,14 +3,21 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/rest"
-	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/mongodb"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/postgres"
 	"log"
 	"net/http"
 )
 
 func handleRequest() {
 	router := mux.NewRouter().StrictSlash(true)
-	s := rest.NewHttpServer(mongodb.New())
+
+	storage := postgres.New()
+	if storage == nil {
+		log.Fatal("Storage hasn't created")
+		return
+	}
+
+	s := rest.NewHttpServer(storage)
 
 	// Read
 	router.HandleFunc("/charm", s.GetAllCharms).Methods(http.MethodGet)
