@@ -2,7 +2,7 @@
 ## Description
 Service for CRUD operation through http-REST API with "Scandinavian charm" entity.  
 Charms placed in in-memory storage.  
-**Create**, **read** by `id` or `filters`, **delete** by `id`, **update** by `id`
+**Create**, **read**, **delete** and **update** by `id`
 
 ## HTTP API
 ### CREATE
