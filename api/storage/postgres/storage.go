@@ -13,6 +13,13 @@ type Storage struct {
 	conn *pgx.Conn
 }
 
+const createSql = `
+CREATE TABLE IF NOT EXISTS charms(
+id SERIAL,
+rune varchar(255),
+god varchar(255),
+power int);`
+
 func New() *Storage {
 	st := &Storage{ctx: context.Background()}
 	conn, err := pgx.Connect(st.ctx, "postgresql://postgres:secret@localhost:5432/postgres")
@@ -25,8 +32,11 @@ func New() *Storage {
 		log.Fatal(err)
 		return nil
 	}
-
 	st.conn = conn
+
+	rows, _ := st.conn.Query(st.ctx, createSql)
+	rows.Close()
+
 	return st
 }
 
