@@ -3,15 +3,15 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/rest"
-	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/postgres"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/redis"
 	"log"
 	"net/http"
 )
 
-func handleRequest() {
+func main() {
 	router := mux.NewRouter().StrictSlash(true)
 
-	storage := postgres.New()
+	storage := redis.New()
 	if storage == nil {
 		log.Fatal("Storage hasn't created")
 		return
@@ -32,8 +32,4 @@ func handleRequest() {
 	router.HandleFunc("/len", s.Len).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-func main() {
-	handleRequest()
 }
