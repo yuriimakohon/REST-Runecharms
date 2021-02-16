@@ -3,21 +3,43 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/rest"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/grpc"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/inmem"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/mongodb"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/postgres"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/redis"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
+	var stor storage.Storage
 
-	storage := redis.New()
-	if storage == nil {
+	switch os.Getenv("CHARM_STORAGE") {
+	case "redis":
+		stor = redis.New()
+	case "inmem":
+		stor = inmem.New()
+	case "postgres":
+		stor = postgres.New()
+	case "mongo":
+		stor = mongodb.New()
+	case "grpc":
+		stor = grpc.New()
+	default:
+		log.Fatal("Invalid 'CHARM_STORAGE' env variable")
+		return
+	}
+
+	if stor == nil {
 		log.Fatal("Storage hasn't created")
 		return
 	}
 
-	s := rest.NewHttpServer(storage)
+	s := rest.NewHttpServer(stor)
 
 	// Read
 	router.HandleFunc("/charm", s.GetAllCharms).Methods(http.MethodGet)
