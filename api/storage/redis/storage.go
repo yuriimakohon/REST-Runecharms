@@ -16,8 +16,10 @@ type Storage struct {
 
 func New() *Storage {
 	st := &Storage{
-		context.Background(),
-		redis.NewClient(&redis.Options{Addr: "localhost:6379"}).Conn(context.Background()),
+		ctx: context.Background(),
+		conn: redis.NewClient(&redis.Options{
+			Addr: "localhost:6379",
+		}).Conn(context.Background()),
 	}
 
 	isExists, err := st.conn.Exists(st.ctx, "charm.lastId").Result()
