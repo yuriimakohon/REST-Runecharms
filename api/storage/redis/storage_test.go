@@ -9,7 +9,9 @@ import (
 	"testing"
 )
 
-var s *Storage
+var (
+	s *Storage
+)
 
 func Test_Init(t *testing.T) {
 	mr, err := miniredis.Run()
@@ -19,18 +21,16 @@ func Test_Init(t *testing.T) {
 
 	s = &Storage{
 		ctx: context.Background(),
-		conn: redis.NewClient(&redis.Options{
-			Addr: mr.Addr(),
-		}).Conn(context.Background()),
+		cli: redis.NewClient(&redis.Options{Addr: mr.Addr()}),
 	}
 
-	isExists, err := s.conn.Exists(s.ctx, "charm.lastId").Result()
+	isExists, err := s.cli.Exists(s.ctx, "charm.lastId").Result()
 	if err != nil {
 		panic(err)
 	}
 
 	if isExists == 0 {
-		s.conn.Set(s.ctx, "charm.lastId", 0, 0)
+		s.cli.Set(s.ctx, "charm.lastId", 0, 0)
 	}
 }
 
@@ -43,27 +43,27 @@ func TestStorage_Add(t *testing.T) {
 	}
 	c2 := models.Charm{
 		Id:    5,
-		Rune:  "Sunszu",
+		Rune:  "Ansuz",
 		God:   "Odin",
 		Power: 200,
 	}
 
 	r1, err := s.Add(c1)
 	if err != nil || c1 != r1 {
-		t.Fatalf("ERR: %s | %v mismatchs %v\n", err, c1, r1)
+		go t.Fatalf("ERR: %s | %v mismatchs %v\n", err, c1, r1)
 	}
 
 	r2, err := s.Add(c2)
 	c2.Id = 2
 	if err != nil || c2 != r2 {
-		t.Fatalf("ERR: %s | %v mismatchs %v\n", err, c2, r2)
+		go t.Fatalf("ERR: %s | %v mismatchs %v\n", err, c2, r2)
 	}
 }
 
 func TestStorage_Get(t *testing.T) {
 	c1 := models.Charm{
 		Id:    55,
-		Rune:  "Kilao",
+		Rune:  "Kola",
 		God:   "Loki",
 		Power: 140,
 	}
