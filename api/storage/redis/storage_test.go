@@ -9,32 +9,29 @@ import (
 	"testing"
 )
 
-var (
-	s *Storage
-)
-
-func Test_Init(t *testing.T) {
+func setup() *miniredis.Miniredis {
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	s = &Storage{
+	return mr
+}
+
+func newStorage(addr string) *Storage {
+	s := &Storage{
 		ctx: context.Background(),
-		cli: redis.NewClient(&redis.Options{Addr: mr.Addr()}),
+		cli: redis.NewClient(&redis.Options{Addr: addr}),
 	}
 
-	isExists, err := s.cli.Exists(s.ctx, "charm.lastId").Result()
-	if err != nil {
-		panic(err)
-	}
+	s.cli.Set(s.ctx, "charm.lastIdl", 0, 0)
 
-	if isExists == 0 {
-		s.cli.Set(s.ctx, "charm.lastId", 0, 0)
-	}
+	return s
 }
 
 func TestStorage_Add(t *testing.T) {
+	s := newStorage(setup().Addr())
+
 	c1 := models.Charm{
 		Id:    1,
 		Rune:  "Mannaz",
@@ -61,6 +58,8 @@ func TestStorage_Add(t *testing.T) {
 }
 
 func TestStorage_Get(t *testing.T) {
+	s := newStorage(setup().Addr())
+
 	c1 := models.Charm{
 		Id:    55,
 		Rune:  "Kola",
@@ -86,6 +85,8 @@ func TestStorage_Get(t *testing.T) {
 }
 
 func TestStorage_GetAll(t *testing.T) {
+	s := newStorage(setup().Addr())
+
 	sli, err := s.GetAll()
 	if err != nil || sli == nil {
 		t.Fatalf("ERR: %s | %v", err, sli)
@@ -93,6 +94,8 @@ func TestStorage_GetAll(t *testing.T) {
 }
 
 func TestStorage_Delete(t *testing.T) {
+	s := newStorage(setup().Addr())
+
 	c1 := models.Charm{
 		Id:    45,
 		Rune:  "Mannaz",
@@ -120,6 +123,19 @@ func TestStorage_Delete(t *testing.T) {
 }
 
 func TestStorage_Update(t *testing.T) {
+	s := newStorage(setup().Addr())
+
+	c := models.Charm{
+		Id:    1,
+		Rune:  "",
+		God:   "",
+		Power: 0,
+	}
+
+	if _, err := s.Add(c); err != nil {
+		t.Fatalf("ERR: %s | %v\n", err, c)
+	}
+
 	c1 := models.Charm{
 		Id:    -5,
 		Rune:  "TestRune",
@@ -146,6 +162,8 @@ func TestStorage_Update(t *testing.T) {
 }
 
 func TestStorage_Len(t *testing.T) {
+	s := newStorage(setup().Addr())
+
 	l, err := s.Len()
 	if err != nil {
 		t.Fatalf("ERR : %s\n", err)
