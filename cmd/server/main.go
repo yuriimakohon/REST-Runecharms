@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/rest"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/elastic"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/grpc"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/inmem"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/mongodb"
@@ -17,8 +18,9 @@ import (
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	var stor storage.Storage
+	envStor := os.Getenv("CHARM_STORAGE")
 
-	switch os.Getenv("CHARM_STORAGE") {
+	switch envStor {
 	case "redis":
 		stor = redis.New()
 	case "inmem":
@@ -29,8 +31,10 @@ func main() {
 		stor = mongodb.New()
 	case "grpc":
 		stor = grpc.New()
+	case "elastic":
+		stor = elastic.New()
 	default:
-		log.Fatal("Invalid 'CHARM_STORAGE' env variable")
+		log.Fatal("Invalid 'CHARM_STORAGE' env variable: ", envStor)
 		return
 	}
 
