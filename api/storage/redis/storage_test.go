@@ -1,13 +1,36 @@
-package inmem
+package redis
 
 import (
+	"context"
 	"fmt"
+	"github.com/alicebob/miniredis"
+	"github.com/go-redis/redis/v8"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/models"
 	"testing"
 )
 
+func setup() *miniredis.Miniredis {
+	mr, err := miniredis.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	return mr
+}
+
+func newStorage(addr string) *Storage {
+	s := &Storage{
+		ctx: context.Background(),
+		cli: redis.NewClient(&redis.Options{Addr: addr}),
+	}
+
+	s.cli.Set(s.ctx, "charm.lastIdl", 0, 0)
+
+	return s
+}
+
 func TestStorage_Add(t *testing.T) {
-	s := New()
+	s := newStorage(setup().Addr())
 
 	c1 := models.Charm{
 		Id:    1,
@@ -35,7 +58,7 @@ func TestStorage_Add(t *testing.T) {
 }
 
 func TestStorage_Get(t *testing.T) {
-	s := New()
+	s := newStorage(setup().Addr())
 
 	c1 := models.Charm{
 		Id:    55,
@@ -62,7 +85,7 @@ func TestStorage_Get(t *testing.T) {
 }
 
 func TestStorage_GetAll(t *testing.T) {
-	s := New()
+	s := newStorage(setup().Addr())
 
 	sli, err := s.GetAll()
 	if err != nil || sli == nil {
@@ -71,7 +94,7 @@ func TestStorage_GetAll(t *testing.T) {
 }
 
 func TestStorage_Delete(t *testing.T) {
-	s := New()
+	s := newStorage(setup().Addr())
 
 	c1 := models.Charm{
 		Id:    45,
@@ -100,7 +123,7 @@ func TestStorage_Delete(t *testing.T) {
 }
 
 func TestStorage_Update(t *testing.T) {
-	s := New()
+	s := newStorage(setup().Addr())
 
 	c := models.Charm{
 		Id:    1,
@@ -139,7 +162,7 @@ func TestStorage_Update(t *testing.T) {
 }
 
 func TestStorage_Len(t *testing.T) {
-	s := New()
+	s := newStorage(setup().Addr())
 
 	l, err := s.Len()
 	if err != nil {
