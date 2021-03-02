@@ -3,6 +3,7 @@ package main
 import (
 	mygrpc "github.com/yuriimakohon/RunecharmsCRUD/api/grpc"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage"
+	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/elastic"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/inmem"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/mongodb"
 	"github.com/yuriimakohon/RunecharmsCRUD/api/storage/postgres"
@@ -17,8 +18,9 @@ import (
 func main() {
 	s := grpc.NewServer()
 	var stor storage.Storage
+	envStor := os.Getenv("CHARM_GRPC_STORAGE")
 
-	switch os.Getenv("CHARM_GRPC_STORAGE") {
+	switch envStor {
 	case "redis":
 		stor = redis.New()
 	case "inmem":
@@ -27,8 +29,10 @@ func main() {
 		stor = postgres.New()
 	case "mongo":
 		stor = mongodb.New()
+	case "elastic":
+		stor = elastic.New()
 	default:
-		log.Fatal("Invalid 'CHARM_GRPC_STORAGE' env variable")
+		log.Fatal("Invalid 'CHARM_STORAGE' env variable: ", envStor)
 		return
 	}
 
