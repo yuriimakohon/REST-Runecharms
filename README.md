@@ -4,6 +4,23 @@ Service for CRUD operation through http-REST API with "Scandinavian charm" entit
 Charms placed in in-memory storage.  
 **Create**, **read**, **delete** and **update** by `id`
 
+## Run
+1. Set environment variable `CHARM_STORAGE` with one of these:
+- `redis`
+- `inmem`
+- `postgres`
+- `mongo`
+- `grpc`
+- `elastic`
+2. (Only if you choosed `grpc` in a previous step) Set `CHARM_GRPC_STORAGE` with one of these:
+- `redis`
+- `inmem`
+- `postgres`
+- `mongo`
+- `elastic`  
+After that run gRPC server: `go run cmd/grpc/main.go`
+3. Run http server: `go run cmd/server/main.go`
+
 ## HTTP API
 ### CREATE
 **POST**  
@@ -48,39 +65,68 @@ Returns all charms in _**json**_:
   }
 ]
 ```
-### Filter usage
 
-`/charm?key=value`
+[comment]: <> (### Filter usage)
 
-| Key | Value | Example |
-|:---:|:-----:|:--------|
-|**rune**|_string_|`rune=Mannaz`|
-|**god**|_string_|`god=Odin`|
-|**power**|_int_|`power=420`|
-#### Example
-**GET** `/charm?rune=Ansuz&power=200` returns:
-```json5
-[
-  {
-    "id" : 2,
-    "rune" : "Ansuz",
-    "god" : "Odin",
-    "power" : 200
-  },
-  {
-    "id" : 4,
-    "rune" : "Ansuz",
-    "god" : "Loki",
-    "power" : 200
-  },
-  {
-    "id" : 7,
-    "rune" : "Ansuz",
-    "god" : "Freya",
-    "power" : 200
-  }
-]
-```
+[comment]: <> (`/charm?key=value`)
+
+[comment]: <> (| Key | Value | Example |)
+
+[comment]: <> (|:---:|:-----:|:--------|)
+
+[comment]: <> (|**rune**|_string_|`rune=Mannaz`|)
+
+[comment]: <> (|**god**|_string_|`god=Odin`|)
+
+[comment]: <> (|**power**|_int_|`power=420`|)
+
+[comment]: <> (#### Example)
+
+[comment]: <> (**GET** `/charm?rune=Ansuz&power=200` returns:)
+
+[comment]: <> (```json5)
+
+[comment]: <> ([)
+
+[comment]: <> (  {)
+
+[comment]: <> (    "id" : 2,)
+
+[comment]: <> (    "rune" : "Ansuz",)
+
+[comment]: <> (    "god" : "Odin",)
+
+[comment]: <> (    "power" : 200)
+
+[comment]: <> (  },)
+
+[comment]: <> (  {)
+
+[comment]: <> (    "id" : 4,)
+
+[comment]: <> (    "rune" : "Ansuz",)
+
+[comment]: <> (    "god" : "Loki",)
+
+[comment]: <> (    "power" : 200)
+
+[comment]: <> (  },)
+
+[comment]: <> (  {)
+
+[comment]: <> (    "id" : 7,)
+
+[comment]: <> (    "rune" : "Ansuz",)
+
+[comment]: <> (    "god" : "Freya",)
+
+[comment]: <> (    "power" : 200)
+
+[comment]: <> (  })
+
+[comment]: <> (])
+
+[comment]: <> (```)
 
 **GET** `/charm/{id}`  
 Returns one entity with `id`
